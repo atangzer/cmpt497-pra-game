@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"target": "es2016",
+		"target": "es6",
 		"moduleResolution": "node",
-		"checkJs": true,
+		"checkJs": false,
 		"esModuleInterop": true
 	}
 }

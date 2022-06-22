@@ -1,10 +1,7 @@
 import Phaser from 'phaser'
 
 import Page from '../helpers/Page'
-
-let page_square;
-let page_square_text;
-let page_square_container;
+import Frame from '../helpers/Frame'
 
 //TODO: Randomize sequence on start up 
 var page_sequence = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5];
@@ -29,9 +26,6 @@ export default class GameScene extends Phaser.Scene {
 	create() {
         // Load images into game scene    
         this.add.image(960, 500, 'background');
-        
-        var button = this.add.image(1000, 800, 'arrow').setScale(0.2);
-        var button_text = this.add.text(1000, 800, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.4, 0.5).setInteractive();
 
         // Frames/Grid - Drop Zone
         var x_frame = 140;
@@ -44,9 +38,9 @@ export default class GameScene extends Phaser.Scene {
                 var frame = this.add.image(x_frame, y_frame, 'frame');
                 var dropzone_frame = this.add.zone(x_frame, y_frame, frame.width, frame.height).setRectangleDropZone(x_frame, y_frame);
             }
-            this.input.enableDebug(dropzone_frame);
             y_frame = 200;
             x_frame += 150; 
+            this.input.enableDebug(dropzone_frame)
         }
         
         // Page Sequence
@@ -55,6 +49,16 @@ export default class GameScene extends Phaser.Scene {
             let page_square = new Page(this);
             page_square.render(x_square + (i * 100), 50, 'square', page_sequence[i]);
         }
+
+        // Game button
+        var button_img = this.add.image(0, 0, 'arrow').setScale(0.2);
+        const button_text = this.add.text(0, 0, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.4, 0.5);
+        var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
+        this.input.enableDebug(button)
+
+        button.on('pointerover', () => {
+            console.log('Test');
+        });
 
         this.input.on('dragstart', function (pointer, gameObject) {
             var clone = this.scene.add.image(0, 0, 'square').setScale(0.1);
@@ -76,9 +80,6 @@ export default class GameScene extends Phaser.Scene {
             gameObject.x = dropZone.x;
             gameObject.y = dropZone.y;
             gameObject.input.enabled = true; 
-            console.log("Tile drop initiated.");
-            console.log(gameObject.list[1]._text);
-            // console.log(dropZone)
         });     
 	}
 

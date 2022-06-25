@@ -2,12 +2,16 @@ import Phaser from 'phaser'
 
 import Page from '../helpers/Page'
 import Frame from '../helpers/Frame'
+import PageFault from '../helpers/PageFault'
 
 //TODO: Randomize sequence on start up 
 var page_sequence = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5];
 
 // # of page faults determined by player 
 let user_pf;
+
+// Correct # of page faults
+let answer_pf;
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super('game-scene');
@@ -18,6 +22,9 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('square', 'images/square.png');
         this.load.image('frame', 'images/frame.png');
         this.load.image('arrow', 'images/arrow.png');
+        this.load.image('radio_button', 'images/empty_radio_button.png');
+        this.load.image('selected_radio_button', 'images/red_dot.png');
+
         console.log("[DEBUG] FIFO: " + this.fifo(page_sequence));
         console.log("[DEBUG] LRU: " + this.lru(page_sequence));
         console.log("[DEBUG] OPT: " + this.opt(page_sequence));
@@ -27,9 +34,12 @@ export default class GameScene extends Phaser.Scene {
         // Load images into game scene    
         this.add.image(960, 500, 'background');
 
+        // Set score to 0 
+        user_pf = 0;
+
         // Frames/Grid - Drop Zone
         var x_frame = 140;
-        var y_frame = 200;
+        var y_frame = 170;
         for (var i = 0; i < 12; i++) {
             var frame = this.add.image(x_frame, y_frame, 'frame');
             var dropzone_frame = this.add.zone(x_frame, y_frame, frame.width, frame.height).setRectangleDropZone(x_frame, y_frame);
@@ -38,7 +48,7 @@ export default class GameScene extends Phaser.Scene {
                 var frame = this.add.image(x_frame, y_frame, 'frame');
                 var dropzone_frame = this.add.zone(x_frame, y_frame, frame.width, frame.height).setRectangleDropZone(x_frame, y_frame);
             }
-            y_frame = 200;
+            y_frame = 170;
             x_frame += 150; 
             this.input.enableDebug(dropzone_frame)
         }
@@ -56,8 +66,17 @@ export default class GameScene extends Phaser.Scene {
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
 
-        button.on('pointerover', () => {
-            console.log('Test');
+        // Page Fault Indicators
+        var x_pf = 135;
+        for (var i = 0; i < 12; i++) {
+            let pf = new PageFault(this);
+            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button');
+        }
+
+        button.on('pointerdown', () => {
+            console.log('Test'); //TODO: Set to check number of page faults
+            answer_pf = this.opt(page_sequence); // TODO: Randomize algorithm
+            console.log("Number of Page Faults: " + answer_pf);
         });
 
         this.input.on('dragstart', function (pointer, gameObject) {

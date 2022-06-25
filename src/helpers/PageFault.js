@@ -5,12 +5,15 @@ export default class PageFault {
             let page_fault_container = scene.add.container(x, y, [ page_fault ])
                                                 .setSize(page_fault.width / 50, page_fault.height / 50)
                                                 .setInteractive()
-                                                .on('pointerdown', () => {  var selected = scene.add.image(x, y, sprite2)
+                                                .on('pointerdown', () => {  
+                                                                            var selected = scene.add.image(x, y, sprite2)
                                                                             selected.setScale(0.035)
                                                                                     .setOrigin(0.5, 0.5)
                                                                                     .setInteractive()
-                                                                                    .on('pointerdown', () => { selected.destroy() });
-                                                                                });
+                                                                                    .on('pointerdown', () => { 
+                                                                                        selected.destroy() 
+                                                                                    });
+                                                                            });
             scene.input.enableDebug(page_fault_container);
             return page_fault_container; 
         }

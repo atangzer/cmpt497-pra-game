@@ -70,11 +70,12 @@ export default class GameScene extends Phaser.Scene {
         var x_pf = 135;
         for (var i = 0; i < 12; i++) {
             let pf = new PageFault(this);
-            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button');
+            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', user_pf);
+            
         }
-
+        
         button.on('pointerdown', () => {
-            console.log('Test'); //TODO: Set to check number of page faults
+            //TODO: Set to check number of page faults
             answer_pf = this.opt(page_sequence); // TODO: Randomize algorithm
             console.log("Number of Page Faults: " + answer_pf);
         });

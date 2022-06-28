@@ -4,14 +4,16 @@ import Page from '../helpers/Page'
 import Frame from '../helpers/Frame'
 import PageFault from '../helpers/PageFault'
 
-//TODO: Randomize sequence on start up 
-var page_sequence = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5];
+// Randomized array of 12 numbers from [1,10]
+var page_sequence = Array.from({length: 12}, () => Math.floor(Math.random() * 10));
 
 // # of page faults determined by player 
 let user_pf;
 
 // Correct # of page faults
 let answer_pf;
+
+let score; 
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super('game-scene');
@@ -34,8 +36,13 @@ export default class GameScene extends Phaser.Scene {
         // Load images into game scene    
         this.add.image(960, 500, 'background');
 
-        // Set score to 0 
+        // Set # of PFs & score to 0 
         user_pf = 0;
+        score = 0;
+
+        // Scoreboard
+        this.scoreText = this.add.text(20, 20, '', { font: "25px Arial Black", fill: "#000" });
+        this.updatePfCount();
 
         // Frames/Grid - Drop Zone
         var x_frame = 140;
@@ -62,7 +69,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Game button
         var button_img = this.add.image(0, 0, 'arrow').setScale(0.2);
-        const button_text = this.add.text(0, 0, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.4, 0.5);
+        const button_text = this.add.text(0, 0, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.5, 0.5);
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
 
@@ -73,7 +80,6 @@ export default class GameScene extends Phaser.Scene {
         for (var i = 0; i < 12; i++) {
             let pf = new PageFault(this);
             var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
-            
         }
 
         this.input.on('dragstart', function (pointer, gameObject) {
@@ -115,14 +121,20 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Update Count
-    // updatePfCount() 
+    updatePfCount() {
+        this.scoreText.setText('Score: ' + score);
+    }
 
     checkAnswer() {
-        answer_pf = this.lru(page_sequence); // TODO: Randomize algorithm]
-        console.log("Correct number of Page Faults: " + answer_pf);
-        if (answer_pf == user_pf) {
+        answer_pf = this.lru(page_sequence); // TODO: Randomize algorithm
+        if (answer_pf == user_pf) { 
+            // Increment score and reset round
+            score += 1;
             console.log("[TODO]: Show correct prompt");
+            this.updatePfCount();
+            // TODO: Round reset - Undo PF selectors, reset algorithm, reset sequence
         } else {
+            // Wrong Answer: Continue round
             console.log("[TODO]: Show incorrect prompt");
         }
     }
@@ -160,8 +172,6 @@ export default class GameScene extends Phaser.Scene {
         let pf, top; 
         let n = 4; //TODO: change to be dynamic
         var frame = [];
-
-        // console.log(sequence);
 
         pf = 0;
         top = 0; 

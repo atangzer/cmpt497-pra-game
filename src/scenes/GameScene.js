@@ -70,7 +70,7 @@ export default class GameScene extends Phaser.Scene {
         var x_pf = 135;
         for (var i = 0; i < 12; i++) {
             let pf = new PageFault(this);
-            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button');
+            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
             
         }
         
@@ -109,8 +109,19 @@ export default class GameScene extends Phaser.Scene {
 
     // Page Fault Radio Button Helper Functions
     // Increment Count
+    incrementPf() {
+        user_pf += 1;
+        console.log("[# of page faults]: " + user_pf);
+    }
+
     // Decrement Count
+    decrementPf() {
+        user_pf -= 1;
+        console.log("[# of page faults]: " + user_pf);
+    }
+
     // Update Count
+    // updatePfCount() 
 
     // These functions should return the number of page faults
     // LRU Page Replacement Algorithm Function

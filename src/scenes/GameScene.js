@@ -66,6 +66,8 @@ export default class GameScene extends Phaser.Scene {
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
 
+        button.on('pointerdown', () => { this.checkAnswer(); });
+
         // Page Fault Indicators
         var x_pf = 135;
         for (var i = 0; i < 12; i++) {
@@ -73,12 +75,6 @@ export default class GameScene extends Phaser.Scene {
             var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
             
         }
-        
-        button.on('pointerdown', () => {
-            //TODO: Set to check number of page faults
-            answer_pf = this.opt(page_sequence); // TODO: Randomize algorithm
-            console.log("Number of Page Faults: " + answer_pf);
-        });
 
         this.input.on('dragstart', function (pointer, gameObject) {
             var clone = this.scene.add.image(0, 0, 'square').setScale(0.1);
@@ -108,13 +104,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Page Fault Radio Button Helper Functions
-    // Increment Count
     incrementPf() {
         user_pf += 1;
         console.log("[# of page faults]: " + user_pf);
     }
 
-    // Decrement Count
     decrementPf() {
         user_pf -= 1;
         console.log("[# of page faults]: " + user_pf);
@@ -122,6 +116,16 @@ export default class GameScene extends Phaser.Scene {
 
     // Update Count
     // updatePfCount() 
+
+    checkAnswer() {
+        answer_pf = this.lru(page_sequence); // TODO: Randomize algorithm]
+        console.log("Correct number of Page Faults: " + answer_pf);
+        if (answer_pf == user_pf) {
+            console.log("[TODO]: Show correct prompt");
+        } else {
+            console.log("[TODO]: Show incorrect prompt");
+        }
+    }
 
     // These functions should return the number of page faults
     // LRU Page Replacement Algorithm Function

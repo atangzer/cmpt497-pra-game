@@ -4,7 +4,7 @@ import Page from '../helpers/Page'
 import Frame from '../helpers/Frame'
 import PageFault from '../helpers/PageFault'
 
-// Randomized array of 12 numbers from [1,10]
+// Randomized array of 12 numbers from [0,10]
 var page_sequence = Array.from({length: 12}, () => Math.floor(Math.random() * 10));
 
 // # of page faults determined by player 
@@ -40,8 +40,12 @@ export default class GameScene extends Phaser.Scene {
         user_pf = 0;
         score = 0;
 
+        // Page Replacement Algorithm Selection
+        this.algorithm = this.add.text(20, 40, '', { font: "25px Arial Black", fill: "#000" });
+        answer_pf = this.randomizeAlgorithm();
+
         // Scoreboard
-        this.scoreText = this.add.text(20, 20, '', { font: "25px Arial Black", fill: "#000" });
+        this.scoreText = this.add.text(20, 10, '', { font: "25px Arial Black", fill: "#000" });
         this.updatePfCount();
 
         // Frames/Grid - Drop Zone
@@ -126,7 +130,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     checkAnswer() {
-        answer_pf = this.lru(page_sequence); // TODO: Randomize algorithm
         if (answer_pf == user_pf) { 
             // Increment score and reset round
             score += 1;
@@ -221,5 +224,24 @@ export default class GameScene extends Phaser.Scene {
         }
 
         return pf; 
+    }
+
+    randomizeAlgorithm() {
+        const choice = Math.floor(Math.random() * 3);
+        console.log(choice);
+        switch(choice) {
+            case 0:
+                console.log("LRU Selected");
+                this.algorithm.setText('LRU');
+                return this.lru(page_sequence);
+            case 1:
+                console.log("FIFO Selected");
+                this.algorithm.setText('FIFO');
+                return this.fifo(page_sequence);
+            case 2:
+                console.log("OPT Selected");
+                this.algorithm.setText('OPT');
+                return this.opt(page_sequence);         
+        }
     }
 }

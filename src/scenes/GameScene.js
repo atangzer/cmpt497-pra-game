@@ -15,7 +15,8 @@ let answer_pf;
 
 let score; 
 
-const COLOR_PRIMARY = 0xC1E1C1;
+const COLOR_CORRECT = 0xC1E1C1;
+const COLOR_WRONG = 0xFDFD96;
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super('game-scene');
@@ -44,8 +45,7 @@ export default class GameScene extends Phaser.Scene {
         // Load images into game scene    
         this.add.image(960, 500, 'background');
 
-        // Set # of PFs & score to 0 
-        user_pf = 0;
+        // Set # of PF to 0 
         score = 0;
 
         // Page Replacement Algorithm Selection
@@ -81,7 +81,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Game button
         var button_img = this.add.image(0, 0, 'arrow').setScale(0.2);
-        const button_text = this.add.text(0, 0, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.5, 0.5);
+        var button_text = this.add.text(0, 0, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.5, 0.5);
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
 
@@ -91,8 +91,9 @@ export default class GameScene extends Phaser.Scene {
 
         // Page Fault Indicators
         var x_pf = 135;
+        let pf = new PageFault(this);
         for (var i = 0; i < 12; i++) {
-            let pf = new PageFault(this);
+            // let pf = new PageFault(this);
             var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
         }
 
@@ -119,9 +120,7 @@ export default class GameScene extends Phaser.Scene {
         });     
 	}
 
-    update() {
-
-    }
+    update() { }
 
     // Page Fault Radio Button Helper Functions
     incrementPf() {
@@ -139,36 +138,59 @@ export default class GameScene extends Phaser.Scene {
         this.scoreText.setText('Score: ' + score);
     }
 
+    resetRound() {
+        this.updatePfCount();
+        page_sequence = Array.from({length: 12}, () => Math.floor(Math.random() * 10));
+
+        console.log(page_sequence);
+
+        // TODO: Refactor
+        var x_square = 400;
+        for (var i = 0; i < 12; i++) {
+            let page_square = new Page(this);
+            page_square.render(x_square + (i * 100), 50, 'square', page_sequence[i]);
+        }
+
+        answer_pf = this.randomizeAlgorithm();
+
+        console.log("[DEBUG] FIFO: " + this.fifo(page_sequence));
+        console.log("[DEBUG] LRU: " + this.lru(page_sequence));
+        console.log("[DEBUG] OPT: " + this.opt(page_sequence)); 
+
+        // TODO: Unselect radio buttons
+    }
+
     checkAnswer() {
         if (answer_pf == user_pf) { 
             // Increment score
             score += 1;
-            var toast = this.rexUI.add.toast({
+
+            this.rexUI.add.toast({
                 x: 950,
                 y: 400,
                 width: 600,
                 height: 200,
     
-                background: this.rexUI.add.roundRectangle(300, 200, 2, 2, 20, COLOR_PRIMARY),
+                background: this.rexUI.add.roundRectangle(300, 200, 2, 2, 20, COLOR_CORRECT),
                 text: this.add.text(0, 0, '', { font: "20px Arial Black", fill: "#000" }),
                 space: {
-                    left: 20,
+                    left: 240,
                     right: 20,
                     top: 20,
                     bottom: 20,
                 },
             }).showMessage('Good Job!')
-            this.updatePfCount();
-            // TODO: Round reset - Undo PF selectors, reset algorithm, reset sequence
+
+            this.resetRound();
         } else {
             // Wrong Answer: Continue round
-            var toast = this.rexUI.add.toast({
+            this.rexUI.add.toast({
                 x: 950,
                 y: 400,
                 width: 600,
                 height: 200,
 
-                background: this.rexUI.add.roundRectangle(300, 200, 2, 2, 20, COLOR_PRIMARY),
+                background: this.rexUI.add.roundRectangle(300, 200, 2, 2, 20, COLOR_WRONG),
                 text: this.add.text(0, 0, '', { font: "25px Arial Black", fill: "#000" }),
                 space: {
                     left: 240,
@@ -266,7 +288,7 @@ export default class GameScene extends Phaser.Scene {
 
     randomizeAlgorithm() {
         const choice = Math.floor(Math.random() * 3);
-        console.log(choice);
+        user_pf = 0;
         switch(choice) {
             case 0:
                 console.log("LRU Selected");

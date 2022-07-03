@@ -14,6 +14,8 @@ let user_pf;
 let answer_pf;
 
 let score; 
+
+const COLOR_PRIMARY = 0xC1E1C1;
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super('game-scene');
@@ -30,6 +32,12 @@ export default class GameScene extends Phaser.Scene {
         console.log("[DEBUG] FIFO: " + this.fifo(page_sequence));
         console.log("[DEBUG] LRU: " + this.lru(page_sequence));
         console.log("[DEBUG] OPT: " + this.opt(page_sequence));
+
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });   
 	}
 
 	create() {
@@ -77,7 +85,9 @@ export default class GameScene extends Phaser.Scene {
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
 
-        button.on('pointerdown', () => { this.checkAnswer(); });
+        button.on('pointerdown', () => { 
+            this.checkAnswer(); 
+        });
 
         // Page Fault Indicators
         var x_pf = 135;
@@ -131,14 +141,42 @@ export default class GameScene extends Phaser.Scene {
 
     checkAnswer() {
         if (answer_pf == user_pf) { 
-            // Increment score and reset round
+            // Increment score
             score += 1;
-            console.log("[TODO]: Show correct prompt");
+            var toast = this.rexUI.add.toast({
+                x: 950,
+                y: 400,
+                width: 600,
+                height: 200,
+    
+                background: this.rexUI.add.roundRectangle(300, 200, 2, 2, 20, COLOR_PRIMARY),
+                text: this.add.text(0, 0, '', { font: "20px Arial Black", fill: "#000" }),
+                space: {
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20,
+                },
+            }).showMessage('Good Job!')
             this.updatePfCount();
             // TODO: Round reset - Undo PF selectors, reset algorithm, reset sequence
         } else {
             // Wrong Answer: Continue round
-            console.log("[TODO]: Show incorrect prompt");
+            var toast = this.rexUI.add.toast({
+                x: 950,
+                y: 400,
+                width: 600,
+                height: 200,
+
+                background: this.rexUI.add.roundRectangle(300, 200, 2, 2, 20, COLOR_PRIMARY),
+                text: this.add.text(0, 0, '', { font: "25px Arial Black", fill: "#000" }),
+                space: {
+                    left: 240,
+                    right: 20,
+                    top: 20,
+                    bottom: 20,
+                },
+            }).showMessage('Try Again!')
         }
     }
 

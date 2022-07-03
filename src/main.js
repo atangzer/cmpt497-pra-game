@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
 import HelloWorldScene from './scenes/HelloWorldScene'
 import GameScene from './scenes/GameScene'
@@ -13,6 +14,15 @@ const config = {
 			gravity: { y: 200 }
 		}
 	},
+	plugins: {
+        scene: [{
+            key: 'rexUI',
+            plugin: UIPlugin,
+            mapping: 'rexUI'
+        },
+        // ...
+        ]
+    },
 	// canvasStyle: `display: block; width: 100%; height: 100%;`,
 	scene: [GameScene, HelloWorldScene]
 }

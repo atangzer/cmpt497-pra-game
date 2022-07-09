@@ -7,6 +7,9 @@ import PageFault from '../helpers/PageFault'
 // Randomized array of 12 numbers from [0,10]
 var page_sequence = Array.from({length: 12}, () => Math.floor(Math.random() * 10));
 
+// # of frames
+var n = 4;
+
 // # of page faults determined by player 
 let user_pf;
 
@@ -62,7 +65,7 @@ export default class GameScene extends Phaser.Scene {
         for (var i = 0; i < 12; i++) {
             var frame = this.add.image(x_frame, y_frame, 'frame');
             var dropzone_frame = this.add.zone(x_frame, y_frame, frame.width, frame.height).setRectangleDropZone(x_frame, y_frame);
-            for (var j = 0; j < 3; j++) {
+            for (var j = 0; j < n - 1; j++) {
                 y_frame += 150;
                 var frame = this.add.image(x_frame, y_frame, 'frame');
                 var dropzone_frame = this.add.zone(x_frame, y_frame, frame.width, frame.height).setRectangleDropZone(x_frame, y_frame);
@@ -158,6 +161,13 @@ export default class GameScene extends Phaser.Scene {
         console.log("[DEBUG] OPT: " + this.opt(page_sequence)); 
 
         // TODO: Unselect radio buttons
+        var x_pf = 135;
+        for (var i = 0; i < 12; i++) {
+            let pf = new PageFault(this);
+            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
+        }
+
+        // TODO: Clear drop zone
     }
 
     checkAnswer() {

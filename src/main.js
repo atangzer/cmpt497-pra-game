@@ -1,8 +1,8 @@
 import Phaser from 'phaser'
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
-import HelloWorldScene from './scenes/HelloWorldScene'
 import GameScene from './scenes/GameScene'
+import TitleScene from './scenes/TitleScene'
 
 const config = {
 	type: Phaser.AUTO,
@@ -20,11 +20,10 @@ const config = {
             plugin: UIPlugin,
             mapping: 'rexUI'
         },
-        // ...
         ]
     },
 	// canvasStyle: `display: block; width: 100%; height: 100%;`,
-	scene: [GameScene, HelloWorldScene]
+	scene: [TitleScene, GameScene]
 }
 
-export default new Phaser.Game(config)
+var game = new Phaser.Game(config);

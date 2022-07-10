@@ -18,6 +18,10 @@ let answer_pf;
 
 let score; 
 
+let unselect;
+
+var container;
+
 const COLOR_CORRECT = 0xC1E1C1;
 const COLOR_WRONG = 0xFDFD96;
 export default class GameScene extends Phaser.Scene {
@@ -50,6 +54,8 @@ export default class GameScene extends Phaser.Scene {
 
         // Set # of PF to 0 
         score = 0;
+
+        unselect = 0;
 
         // Page Replacement Algorithm Selection
         this.algorithm = this.add.text(20, 40, '', { font: "25px Arial Black", fill: "#000" });
@@ -88,17 +94,43 @@ export default class GameScene extends Phaser.Scene {
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
 
-        button.on('pointerdown', () => { 
-            this.checkAnswer(); 
-        });
-
         // Page Fault Indicators
-        var x_pf = 135;
-        let pf = new PageFault(this);
-        for (var i = 0; i < 12; i++) {
-            // let pf = new PageFault(this);
-            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
-        }
+        var page_fault_button = this.add.group({
+            key: 'radio_button',
+            repeat: 12,
+            setXY: { x: 135, y: 710, stepX: 150 }
+        })
+
+        var selected_buttons = this.add.group();
+
+        page_fault_button.children.iterate((children) => {
+            children.setScale(0.05)
+                    .setSize(children.width, children.height)
+                    .setInteractive();
+
+            children.on('pointerdown', () => {
+                var selected = this.add.image(children.x, children.y, 'selected_radio_button')
+                        .setScale(0.05)
+                        .setSize(children.width, children.height)
+                        .setInteractive();
+                selected_buttons.add(selected);
+                this.incrementPf();    
+                
+                selected.on('pointerdown', () => {
+                    selected.destroy();
+                    this.decrementPf();
+                })
+            })
+        })
+
+        button.on('pointerdown', () => { 
+            this.checkAnswer();
+
+            if (unselect == 1) {
+                console.log(selected_buttons.getLength())
+                selected_buttons.clear(true, true);
+            }
+        });
 
         this.input.on('dragstart', function (pointer, gameObject) {
             var clone = this.scene.add.image(0, 0, 'square').setScale(0.1);
@@ -161,11 +193,7 @@ export default class GameScene extends Phaser.Scene {
         console.log("[DEBUG] OPT: " + this.opt(page_sequence)); 
 
         // TODO: Unselect radio buttons
-        var x_pf = 135;
-        for (var i = 0; i < 12; i++) {
-            let pf = new PageFault(this);
-            var container = pf.render(x_pf + (i * 150), 710, 'radio_button', 'selected_radio_button', this.incrementPf, this.decrementPf);
-        }
+        unselect = 1;
 
         // TODO: Clear drop zone
     }

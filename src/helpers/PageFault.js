@@ -8,7 +8,6 @@ export default class PageFault {
                                                 .on('pointerdown', () => { 
                                                     this.enterPointerDownState(x, y, sprite2, callback2);
                                                     callback1();
-                                                    
                                                 });
             scene.input.enableDebug(page_fault_container);
             return page_fault_container; 
@@ -16,11 +15,15 @@ export default class PageFault {
 
         // Unselect radio button
         this.enterPointerDownState = (x, y, sprite2, callback2) => {
-            var selected = scene.add.image(x, y, sprite2);
+            var selected = scene.add.image(x, y, sprite2).setInteractive();
             selected.setScale(0.035).setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => { 
                 selected.destroy();
                 callback2(); 
             });
+        }
+
+        this.unselect = () => {
+            console.log("hello world!");
         }
     }
 }

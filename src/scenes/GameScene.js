@@ -20,7 +20,7 @@ let score;
 
 let unselect;
 
-var container;
+var page_squares;
 
 const COLOR_CORRECT = 0xC1E1C1;
 const COLOR_WRONG = 0xFDFD96;
@@ -50,7 +50,7 @@ export default class GameScene extends Phaser.Scene {
 
 	create() {
         // Load images into game scene    
-        this.add.image(960, 500, 'background');
+        // this.add.image(960, 500, 'background');
 
         // Set # of PF to 0 
         score = 0;
@@ -82,17 +82,33 @@ export default class GameScene extends Phaser.Scene {
         }
         
         // Page Sequence
-        var x_square = 400;
-        for (var i = 0; i < 12; i++) {
-            let page_square = new Page(this);
-            page_square.render(x_square + (i * 100), 50, 'square', page_sequence[i]);
-        }
+        // page_squares = this.add.group()
+
+        // var x_square = 400;
+        let page_square = new Page(this);
+        page_squares = this.add.group();
+        this.createPageSquares();
 
         // Game button
         var button_img = this.add.image(0, 0, 'arrow').setScale(0.2);
         var button_text = this.add.text(0, 0, 'Next', { font: "25px Arial Black", fill: "#000" }).setOrigin(0.5, 0.5);
         var button = this.add.container(1000, 800, [ button_img, button_text ]).setSize(button_img.width / 6, button_img.height / 20).setInteractive();
         this.input.enableDebug(button)
+
+        button.on('pointerdown', () => { 
+            this.checkAnswer();
+
+            if (unselect == 1) {
+                // console.log(page_squares.getLength())
+                // console.log(page_squares)
+                unselect = 0;
+                selected_buttons.clear(true, true);
+                page_squares.clear(true, true);
+                this.createPageSquares();   
+                // console.log(page_squares.getLength())
+                
+            }
+        });
 
         // Page Fault Indicators
         var page_fault_button = this.add.group({
@@ -123,20 +139,9 @@ export default class GameScene extends Phaser.Scene {
             })
         })
 
-        button.on('pointerdown', () => { 
-            this.checkAnswer();
-
-            if (unselect == 1) {
-                console.log(selected_buttons.getLength())
-                selected_buttons.clear(true, true);
-            }
-        });
-
         this.input.on('dragstart', function (pointer, gameObject) {
-            var clone = this.scene.add.image(0, 0, 'square').setScale(0.1);
-            var clone_text = this.scene.add.text(0, 0, gameObject.list[1]._text, { font: "25px Arial Black", fill: "#000" }).setOrigin(0.5, 0.5);
-            var cloned_container = this.scene.add.container(this._temp[0].x, this._temp[0].y, [clone, clone_text ]).setSize(clone.width / 10, clone.height / 10).setInteractive();
-            this.scene.input.setDraggable(cloned_container);
+            page_squares.add(page_square.render(this._temp[0].x, this._temp[0].y, 'square', gameObject.list[1]._text));
+            // this.scene.input.setDraggable(cloned_container);
         });
 
         this.input.on('dragend', function (pointer, gameObject) {
@@ -179,23 +184,31 @@ export default class GameScene extends Phaser.Scene {
 
         console.log(page_sequence);
 
-        // TODO: Refactor
-        var x_square = 400;
-        for (var i = 0; i < 12; i++) {
-            let page_square = new Page(this);
-            page_square.render(x_square + (i * 100), 50, 'square', page_sequence[i]);
-        }
-
         answer_pf = this.randomizeAlgorithm();
 
         console.log("[DEBUG] FIFO: " + this.fifo(page_sequence));
         console.log("[DEBUG] LRU: " + this.lru(page_sequence));
         console.log("[DEBUG] OPT: " + this.opt(page_sequence)); 
 
-        // TODO: Unselect radio buttons
+        // Flag to unselect radio buttons
         unselect = 1;
 
         // TODO: Clear drop zone
+        // TODO: Refactor
+        // var x_square = 400;
+        // let page_square = new Page(this);
+        // for (var i = 0; i < 12; i++) {
+        //     page_square.render(x_square + (i * 100), 50, 'square', page_sequence[i]);
+        // }
+    }
+
+    createPageSquares() {
+        console.log("123123")
+        var x_square = 400;
+        let page_square = new Page(this);
+        for (var i = 0; i < 12; i++) {
+            page_squares.add(page_square.render(x_square + (i * 100), 50, 'square', page_sequence[i]));
+        }
     }
 
     checkAnswer() {
@@ -326,7 +339,11 @@ export default class GameScene extends Phaser.Scene {
 
     randomizeAlgorithm() {
         const choice = Math.floor(Math.random() * 3);
+
+        // Reset score
         user_pf = 0;
+        unselect = 0; 
+
         switch(choice) {
             case 0:
                 console.log("LRU Selected");
